@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Shield</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>&#x1f6e1; Prompt Shield</h1>
+      <div id="status-indicator"></div>
+    </header>
+
+    <section class="popup-section">
+      <h2>Rules</h2>
+      <div id="rule-list"></div>
+      <button id="add-rule-btn" class="btn btn-primary">Add Rule</button>
+    </section>
+
+    <section class="popup-section" id="rule-editor-section" style="display: none;">
+      <h2 id="editor-title">Add Rule</h2>
+      <div id="rule-editor"></div>
+    </section>
+
+    <section class="popup-section">
+      <h2>Import / Export</h2>
+      <div id="import-export"></div>
+    </section>
+  </div>
+
+  <script type="module" src="index.ts"></script>
+</body>
+</html>
