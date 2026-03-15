@@ -6,8 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach -A run build",
+    "build": "yarn workspace @prompt-shield/detection-engine run build && yarn workspace @prompt-shield/extension run build",
+    "build:wasm": "yarn workspace @prompt-shield/detection-engine run build",
+    "build:ext": "yarn workspace @prompt-shield/extension run build",
     "test": "yarn workspaces foreach -A run test",
+    "test:e2e": "yarn workspace @prompt-shield/extension run test:e2e",
     "clean": "yarn workspaces foreach -A run clean"
   }
 }
