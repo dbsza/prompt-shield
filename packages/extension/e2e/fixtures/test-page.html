@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prompt Shield Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+    .field-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    textarea, input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    textarea { height: 100px; resize: vertical; }
+    [contenteditable] { border: 1px solid #ccc; border-radius: 4px; padding: 8px; min-height: 60px; }
+    button { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    #result { margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 4px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Prompt Shield Test Page</h1>
+
+  <form id="test-form">
+    <div class="field-group">
+      <label for="textarea-field">Textarea</label>
+      <textarea id="textarea-field" placeholder="Type or paste text here..."></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="input-field">Text Input</label>
+      <input type="text" id="input-field" placeholder="Type or paste text here...">
+    </div>
+
+    <div class="field-group">
+      <label>Contenteditable</label>
+      <div id="editable-field" contenteditable="true">Type or paste text here...</div>
+    </div>
+
+    <button type="submit" id="submit-btn">Submit</button>
+  </form>
+
+  <div id="result">
+    <strong>Submitted!</strong>
+    <pre id="result-data"></pre>
+  </div>
+
+  <script>
+    document.getElementById('test-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = {
+        textarea: document.getElementById('textarea-field').value,
+        input: document.getElementById('input-field').value,
+        editable: document.getElementById('editable-field').textContent,
+      };
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result-data').textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
