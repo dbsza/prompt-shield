@@ -1,3 +1,4 @@
+import './styles.css';
 import type { Rule, SetRulesMessage, GetRulesMessage } from '../types';
 import { renderStatusIndicator } from './StatusIndicator';
 import { renderRuleList } from './RuleList';

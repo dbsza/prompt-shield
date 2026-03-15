@@ -1,45 +1,65 @@
 import { defineConfig } from 'vite';
-import { crx } from '@crxjs/vite-plugin';
 import { resolve } from 'path';
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
-import manifest from './public/manifest.json';
+import { copyFileSync, existsSync, mkdirSync, cpSync, renameSync, rmSync } from 'fs';
 
 const WASM_PKG = resolve(__dirname, '../detection-engine/pkg');
 
-function copyWasmPlugin() {
+function copyAssetsPlugin() {
   return {
-    name: 'copy-wasm',
-    buildStart() {
-      const outDir = resolve(__dirname, 'public');
+    name: 'copy-extension-assets',
+    writeBundle() {
+      const dist = resolve(__dirname, 'dist');
+
+      // Move popup.html from nested path to dist root
+      const nestedPopup = resolve(dist, 'src/popup/popup.html');
+      if (existsSync(nestedPopup)) {
+        copyFileSync(nestedPopup, resolve(dist, 'popup.html'));
+        rmSync(resolve(dist, 'src'), { recursive: true, force: true });
+      }
+
+      // Copy manifest.json
+      copyFileSync(resolve(__dirname, 'public/manifest.json'), resolve(dist, 'manifest.json'));
+
+      // Copy WASM files
       if (existsSync(resolve(WASM_PKG, 'detection_engine_bg.wasm'))) {
         copyFileSync(
           resolve(WASM_PKG, 'detection_engine_bg.wasm'),
-          resolve(outDir, 'detection_engine_bg.wasm'),
+          resolve(dist, 'detection_engine_bg.wasm'),
         );
         copyFileSync(
           resolve(WASM_PKG, 'detection_engine.js'),
-          resolve(outDir, 'detection_engine.js'),
+          resolve(dist, 'detection_engine.js'),
         );
+      }
+
+      // Copy icons
+      const iconsDir = resolve(__dirname, 'public/icons');
+      if (existsSync(iconsDir)) {
+        const distIcons = resolve(dist, 'icons');
+        mkdirSync(distIcons, { recursive: true });
+        cpSync(iconsDir, distIcons, { recursive: true });
       }
     },
   };
 }
 
 export default defineConfig({
-  plugins: [copyWasmPlugin(), crx({ manifest: manifest as any })],
+  base: './',
+  plugins: [copyAssetsPlugin()],
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'src/popup/popup.html'),
+        background: resolve(__dirname, 'src/background/index.ts'),
+        content: resolve(__dirname, 'src/content/index.ts'),
+        popup: resolve(__dirname, 'popup.html'),
       },
-    },
-  },
-  server: {
-    port: 5173,
-    strictPort: true,
-    hmr: {
-      port: 5173,
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: 'chunks/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
     },
   },
 });

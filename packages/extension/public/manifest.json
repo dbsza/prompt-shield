@@ -5,18 +5,18 @@
   "description": "Prevents accidental leakage of sensitive data to AI tools and web services",
   "permissions": ["storage", "activeTab"],
   "background": {
-    "service_worker": "src/background/index.ts",
+    "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content/index.ts"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_popup": "src/popup/popup.html",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
@@ -33,7 +33,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["*.wasm"],
+      "resources": ["*.wasm", "detection_engine.js"],
       "matches": ["<all_urls>"]
     }
   ]

@@ -150,3 +150,63 @@ Custom fixture launches Chrome with the extension loaded via `--load-extension`.
 | API key regex test failing | Test input format didn't match regex pattern; fixed to use `key: value` format |
 
 ---
+
+## Session 2 — Build Pipeline Fix & Extension Manifest (2026-03-15)
+
+### Summary
+
+Fixed two critical issues: `yarn build` failing due to TypeScript errors and the extension build pipeline not producing a valid Chrome extension.
+
+### Problems Identified
+
+1. **`yarn build` failed** — `tsc` was compiling test files which used `vi.mocked()` with complex `@types/chrome` overloads, causing type errors
+2. **Extension not loadable** — `@crxjs/vite-plugin` (beta) was unstable, manifest referenced `.ts` source files instead of built `.js`, and popup.html ended up in a nested path with broken relative imports
+
+### Changes Made
+
+| File | Change |
+|------|--------|
+| `packages/extension/tsconfig.json` | Excluded `__tests__` dirs from `tsc`, added `noEmit: true`, removed `vitest/globals` from types |
+| `packages/extension/vite.config.ts` | Replaced `@crxjs/vite-plugin` with custom Vite plugin that copies manifest, WASM, and icons to dist; added `base: './'` for relative paths |
+| `packages/extension/package.json` | Removed `@crxjs/vite-plugin` dependency, changed build to `tsc --noEmit && vite build` |
+| `packages/extension/public/manifest.json` | Changed paths from `.ts` source to built `.js` files (`background.js`, `content.js`, `popup.html`) |
+| `packages/extension/popup.html` | Moved to extension root so Vite outputs it at `dist/popup.html` with correct relative paths |
+| `packages/extension/src/popup/popup.html` | Removed (replaced by root-level `popup.html`) |
+| `packages/extension/src/popup/index.ts` | Added `import './styles.css'` so Vite bundles CSS |
+| `packages/extension/public/icons/` | Added placeholder PNGs for icon-16, icon-48, icon-128 |
+
+### Build Output (`dist/`)
+
+```
+manifest.json         — Chrome MV3 manifest
+background.js         — Service worker (WASM scanner + message handling)
+content.js            — Content script (interceptor + observer + warning UI)
+popup.html            — Popup shell
+popup.js              — Popup logic (rule management)
+assets/popup-*.css    — Popup styles
+chunks/policy-*.js    — Shared policy engine chunk
+detection_engine.js   — WASM JS bindings
+detection_engine_bg.wasm — Detection engine WASM binary (~1MB)
+icons/                — Extension icons
+```
+
+### Verification
+
+- `yarn build` completes without errors (WASM build + tsc type-check + vite build)
+- All 68 TypeScript unit tests still passing
+- All 75 Rust unit tests still passing
+- All manifest-referenced files present in `dist/`
+- `dist/popup.html` uses correct relative paths (`./popup.js`, `./assets/popup-*.css`)
+- Extension is loadable via Chrome `chrome://extensions` -> Load unpacked -> `packages/extension/dist/`
+
+### Issues Encountered & Resolved
+
+| Issue | Resolution |
+|-------|-----------|
+| `@crxjs/vite-plugin` PnP incompatibility and beta instability | Removed entirely; built custom Vite plugin for asset copying |
+| `tsc` failing on test files with `vi.mocked()` type errors | Excluded `__tests__` from tsconfig `include` |
+| `popup.html` at `dist/src/popup/popup.html` with `../../popup.js` paths | Moved HTML entry to extension root so Vite outputs at `dist/popup.html` |
+| Absolute paths in built HTML (`/popup.js`) | Added `base: './'` to Vite config for relative paths |
+| Missing icon files referenced in manifest | Created placeholder PNG files |
+
+---
