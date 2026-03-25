@@ -1,6 +1,7 @@
 {
   "name": "prompt-shield",
   "private": true,
+  "license": "MIT",
   "packageManager": "yarn@4.1.0",
   "workspaces": [
     "packages/*"
