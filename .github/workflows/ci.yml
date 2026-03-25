@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-tests:
+    name: Rust Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/detection-engine
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/detection-engine
+
+      - run: cargo test
+
+  build-wasm:
+    name: Build WASM
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/detection-engine
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/detection-engine
+
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+
+      - run: wasm-pack build --target web --out-dir pkg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasm-pkg
+          path: packages/detection-engine/pkg/
+          retention-days: 1
+
+  ts-tests:
+    name: TypeScript Tests
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/extension
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: .
+        run: yarn install --immutable
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: packages/detection-engine/pkg/
+
+      - name: Sync WASM glue
+        run: node scripts/sync-wasm-glue.js
+
+      - run: vitest run
+
+  e2e-tests:
+    name: E2E Tests
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/extension
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: .
+        run: yarn install --immutable
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: packages/detection-engine/pkg/
+
+      - name: Sync WASM glue
+        run: node scripts/sync-wasm-glue.js
+
+      - name: Build extension
+        working-directory: .
+        run: yarn build:ext
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - run: npx playwright test
+
+  lint:
+    name: Lint & Type Check
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg
+          path: packages/detection-engine/pkg/
+
+      - name: Sync WASM glue
+        working-directory: packages/extension
+        run: node scripts/sync-wasm-glue.js
+
+      - name: Prettier check
+        run: npx prettier --check .
+
+      - name: TypeScript type check
+        working-directory: packages/extension
+        run: tsc --noEmit
+
+      - name: Rust format check
+        working-directory: packages/detection-engine
+        run: cargo fmt --check

@@ -11,6 +11,8 @@ pkg/
 .vite/
 .turbo/
 *.tsbuildinfo
+test-results/
+packages/extension/src/wasm/generated/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
