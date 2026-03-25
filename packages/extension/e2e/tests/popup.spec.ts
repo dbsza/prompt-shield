@@ -3,7 +3,7 @@ import { test, expect } from '../fixtures/extension';
 test.describe('Popup', () => {
   test('opens popup and shows status', async ({ context, extensionId }) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
     await expect(page.locator('.popup-header h1')).toContainText('Prompt Shield');
     await expect(page.locator('#status-indicator')).toBeVisible();
@@ -11,7 +11,7 @@ test.describe('Popup', () => {
 
   test('shows empty rule list initially', async ({ context, extensionId }) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
     await expect(page.locator('.empty-rules')).toBeVisible();
     await expect(page.locator('.empty-rules')).toContainText('No custom rules');
@@ -19,7 +19,7 @@ test.describe('Popup', () => {
 
   test('can add a custom rule', async ({ context, extensionId }) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
     await page.click('#add-rule-btn');
 
@@ -37,7 +37,7 @@ test.describe('Popup', () => {
 
   test('validates rule before saving', async ({ context, extensionId }) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
     await page.click('#add-rule-btn');
     await page.click('#editor-save');
@@ -48,7 +48,7 @@ test.describe('Popup', () => {
 
   test('can cancel rule editing', async ({ context, extensionId }) => {
     const page = await context.newPage();
-    await page.goto(`chrome-extension://${extensionId}/src/popup/popup.html`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
     await page.click('#add-rule-btn');
     await expect(page.locator('#rule-editor-section')).toBeVisible();

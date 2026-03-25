@@ -17,4 +17,9 @@ export default defineConfig({
       },
     },
   ],
+  webServer: {
+    command: 'npx tsx e2e/fixtures/serve.ts',
+    port: 4173,
+    reuseExistingServer: !process.env.CI,
+  },
 });

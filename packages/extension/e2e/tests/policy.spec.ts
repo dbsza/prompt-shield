@@ -1,7 +1,6 @@
 import { test, expect } from '../fixtures/extension';
-import path from 'path';
 
-const TEST_PAGE = `file://${path.resolve(__dirname, '../fixtures/test-page.html')}`;
+const TEST_PAGE = 'http://localhost:4173';
 
 test.describe('Policy Actions', () => {
   test('block action prevents submission', async ({ context }) => {
