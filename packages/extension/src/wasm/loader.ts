@@ -1,26 +1,18 @@
-export interface WasmScannerInstance {
-  new (): WasmScannerInstance;
-  set_rules(json: string): void;
-  scan_text(input: string): string;
-}
+// Static import of the wasm-bindgen generated glue code.
+// The file at ./generated/detection_engine.js is copied from
+// detection-engine/pkg/ by the Vite syncWasmGluePlugin at build time.
+// This ensures:
+//  1. No dynamic import() — compatible with Service Workers
+//  2. The glue code is the original wasm-bindgen output (audited, not hand-copied)
+//  3. Vite bundles it statically into background.js
+import init, { initSync, WasmScanner } from './generated/detection_engine.js';
 
-export interface WasmModule {
-  default: (input?: RequestInfo | URL | BufferSource) => Promise<void>;
-  WasmScanner: { new (): WasmScannerInstance };
-}
+export type WasmScannerInstance = WasmScanner;
 
-let scannerInstance: WasmScannerInstance | null = null;
-let initPromise: Promise<WasmScannerInstance> | null = null;
+let scannerInstance: WasmScanner | null = null;
+let initPromise: Promise<WasmScanner> | null = null;
 
-export async function initWasm(wasmModule: WasmModule, wasmUrl?: string): Promise<void> {
-  if (wasmUrl) {
-    await wasmModule.default(wasmUrl);
-  } else {
-    await wasmModule.default();
-  }
-}
-
-export async function getScanner(wasmModule: WasmModule, wasmUrl?: string): Promise<WasmScannerInstance> {
+export async function getScanner(): Promise<WasmScanner> {
   if (scannerInstance) {
     return scannerInstance;
   }
@@ -30,8 +22,15 @@ export async function getScanner(wasmModule: WasmModule, wasmUrl?: string): Prom
   }
 
   initPromise = (async () => {
-    await initWasm(wasmModule, wasmUrl);
-    scannerInstance = new wasmModule.WasmScanner();
+    const wasmUrl = chrome.runtime.getURL('detection_engine_bg.wasm');
+    const response = await fetch(wasmUrl);
+    const bytes = await response.arrayBuffer();
+
+    // initSync uses WebAssembly.Module + WebAssembly.Instance under the hood
+    // — no dynamic import() needed, safe for Service Workers
+    initSync({ module: bytes });
+
+    scannerInstance = new WasmScanner();
     return scannerInstance;
   })();
 

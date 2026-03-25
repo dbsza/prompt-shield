@@ -33,7 +33,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["*.wasm", "detection_engine.js"],
+      "resources": ["*.wasm"],
       "matches": ["<all_urls>"]
     }
   ]

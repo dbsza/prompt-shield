@@ -1,50 +1,73 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getScanner, resetScanner } from '../loader';
-import type { WasmModule, WasmScannerInstance } from '../loader';
 
-function createMockModule(): WasmModule {
-  const mockScanner: WasmScannerInstance = {
+// vi.mock is hoisted — factory must not reference outer variables
+vi.mock('../generated/detection_engine.js', () => ({
+  default: vi.fn(),
+  initSync: vi.fn(),
+  WasmScanner: vi.fn().mockImplementation(() => ({
     set_rules: vi.fn(),
-    scan_text: vi.fn().mockReturnValue('{"detections":[],"has_critical":false,"has_high":false,"recommended_action":"allow"}'),
-  } as unknown as WasmScannerInstance;
+    scan_text: vi
+      .fn()
+      .mockReturnValue(
+        '{"detections":[],"has_critical":false,"has_high":false,"recommended_action":"allow"}',
+      ),
+    free: vi.fn(),
+  })),
+}));
 
-  return {
-    default: vi.fn().mockResolvedValue(undefined),
-    WasmScanner: vi.fn().mockImplementation(() => mockScanner) as unknown as { new (): WasmScannerInstance },
-  };
-}
+vi.stubGlobal('chrome', {
+  runtime: {
+    getURL: vi.fn((path: string) => `chrome-extension://fakeid/${path}`),
+  },
+});
+
+vi.stubGlobal(
+  'fetch',
+  vi.fn().mockResolvedValue({
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+  }),
+);
+
+// Import after mocks are set up
+import { getScanner, resetScanner } from '../loader';
+import { initSync, WasmScanner } from '../generated/detection_engine.js';
 
 describe('WASM Loader', () => {
   beforeEach(() => {
     resetScanner();
+    vi.clearAllMocks();
   });
 
-  it('initializes scanner singleton', async () => {
-    const mockModule = createMockModule();
-    const scanner = await getScanner(mockModule);
+  it('fetches WASM binary and calls initSync', async () => {
+    const scanner = await getScanner();
     expect(scanner).toBeDefined();
-    expect(mockModule.default).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith('chrome-extension://fakeid/detection_engine_bg.wasm');
+    expect(initSync).toHaveBeenCalledWith({ module: expect.any(ArrayBuffer) });
   });
 
   it('returns same instance on subsequent calls', async () => {
-    const mockModule = createMockModule();
-    const scanner1 = await getScanner(mockModule);
-    const scanner2 = await getScanner(mockModule);
+    const scanner1 = await getScanner();
+    const scanner2 = await getScanner();
     expect(scanner1).toBe(scanner2);
-    expect(mockModule.default).toHaveBeenCalledTimes(1);
+    expect(initSync).toHaveBeenCalledTimes(1);
   });
 
-  it('passes wasm URL to init', async () => {
-    const mockModule = createMockModule();
-    await getScanner(mockModule, 'test.wasm');
-    expect(mockModule.default).toHaveBeenCalledWith('test.wasm');
+  it('creates a new WasmScanner after init', async () => {
+    await getScanner();
+    expect(WasmScanner).toHaveBeenCalledTimes(1);
   });
 
   it('resets scanner correctly', async () => {
-    const mockModule = createMockModule();
-    await getScanner(mockModule);
+    await getScanner();
     resetScanner();
-    await getScanner(mockModule);
-    expect(mockModule.default).toHaveBeenCalledTimes(2);
+    await getScanner();
+    expect(initSync).toHaveBeenCalledTimes(2);
+    expect(WasmScanner).toHaveBeenCalledTimes(2);
+  });
+
+  it('scanner has expected methods', async () => {
+    const scanner = await getScanner();
+    expect(typeof scanner.scan_text).toBe('function');
+    expect(typeof scanner.set_rules).toBe('function');
   });
 });

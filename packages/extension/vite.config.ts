@@ -1,10 +1,28 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, existsSync, mkdirSync, cpSync, renameSync, rmSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, cpSync, rmSync } from 'fs';
 
 const WASM_PKG = resolve(__dirname, '../detection-engine/pkg');
 
-function copyAssetsPlugin() {
+function syncWasmGluePlugin() {
+  return {
+    name: 'sync-wasm-glue',
+    buildStart() {
+      const target = resolve(__dirname, 'src/wasm/generated');
+      mkdirSync(target, { recursive: true });
+
+      const files = ['detection_engine.js', 'detection_engine.d.ts'];
+      for (const file of files) {
+        const src = resolve(WASM_PKG, file);
+        if (existsSync(src)) {
+          copyFileSync(src, resolve(target, file));
+        }
+      }
+    },
+  };
+}
+
+function copyDistAssetsPlugin() {
   return {
     name: 'copy-extension-assets',
     writeBundle() {
@@ -20,16 +38,10 @@ function copyAssetsPlugin() {
       // Copy manifest.json
       copyFileSync(resolve(__dirname, 'public/manifest.json'), resolve(dist, 'manifest.json'));
 
-      // Copy WASM files
-      if (existsSync(resolve(WASM_PKG, 'detection_engine_bg.wasm'))) {
-        copyFileSync(
-          resolve(WASM_PKG, 'detection_engine_bg.wasm'),
-          resolve(dist, 'detection_engine_bg.wasm'),
-        );
-        copyFileSync(
-          resolve(WASM_PKG, 'detection_engine.js'),
-          resolve(dist, 'detection_engine.js'),
-        );
+      // Copy WASM binary only (JS glue is bundled by Vite)
+      const wasmBin = resolve(WASM_PKG, 'detection_engine_bg.wasm');
+      if (existsSync(wasmBin)) {
+        copyFileSync(wasmBin, resolve(dist, 'detection_engine_bg.wasm'));
       }
 
       // Copy icons
@@ -43,16 +55,16 @@ function copyAssetsPlugin() {
   };
 }
 
+// Main build: background (ES module) + popup (HTML entry)
 export default defineConfig({
   base: './',
-  plugins: [copyAssetsPlugin()],
+  plugins: [syncWasmGluePlugin(), copyDistAssetsPlugin()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
         background: resolve(__dirname, 'src/background/index.ts'),
-        content: resolve(__dirname, 'src/content/index.ts'),
         popup: resolve(__dirname, 'popup.html'),
       },
       output: {

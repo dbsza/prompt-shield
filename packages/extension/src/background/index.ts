@@ -7,7 +7,7 @@ import type {
 } from '../types';
 import { evaluatePolicy } from '../engine/policy';
 import { loadRules, saveRules, loadSettings } from '../storage/rules-storage';
-import type { WasmScannerInstance, WasmModule } from '../wasm/loader';
+import type { WasmScannerInstance } from '../wasm/loader';
 import { getScanner } from '../wasm/loader';
 
 let scanner: WasmScannerInstance | null = null;
@@ -16,17 +16,15 @@ let currentRules: Rule[] = [];
 
 async function initializeScanner(): Promise<void> {
   try {
-    const wasmUrl = chrome.runtime.getURL('detection_engine_bg.wasm');
-    const wasmModule = await import(
-      /* webpackIgnore: true */ chrome.runtime.getURL('detection_engine.js')
-    ) as WasmModule;
-    scanner = await getScanner(wasmModule, wasmUrl);
+    scanner = await getScanner();
 
     // Load saved rules
     currentRules = await loadRules();
     if (currentRules.length > 0) {
       scanner.set_rules(JSON.stringify(currentRules));
     }
+
+    console.log('[Prompt Shield] Scanner initialized successfully');
   } catch (error) {
     console.error('[Prompt Shield] Failed to initialize WASM scanner:', error);
   }
