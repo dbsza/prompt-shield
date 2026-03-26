@@ -49,6 +49,13 @@ function handlePaste(event: ClipboardEvent): void {
   const pastedText = event.clipboardData?.getData('text') || '';
   if (!pastedText.trim()) return;
 
+  // Cancel any pending debounce — paste supersedes it
+  const existingTimer = debounceTimers.get(element);
+  if (existingTimer) {
+    clearTimeout(existingTimer);
+    debounceTimers.delete(element);
+  }
+
   // Paste is immediate — no debounce
   const existingText = getTextFromElement(element);
   const fullText = existingText + pastedText;
