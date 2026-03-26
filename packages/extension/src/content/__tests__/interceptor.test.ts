@@ -100,6 +100,132 @@ describe('Interceptor', () => {
     });
   });
 
+  describe('paste cancels pending debounce', () => {
+    it('cancels pending input debounce when paste occurs', () => {
+      vi.useFakeTimers();
+      const textarea = document.createElement('textarea');
+      document.body.appendChild(textarea);
+      textarea.value = 'hello ';
+
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+      const pasteEvent = new Event('paste', { bubbles: true }) as any;
+      pasteEvent.clipboardData = { getData: () => '418.523.110-53' };
+      textarea.dispatchEvent(pasteEvent);
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback).toHaveBeenCalledWith('hello 418.523.110-53', textarea);
+
+      // Debounce fires — should NOT invoke callback again with stale text
+      vi.advanceTimersByTime(300);
+      expect(callback).toHaveBeenCalledOnce();
+
+      document.body.removeChild(textarea);
+    });
+
+    it('allows normal debounce when no paste follows', () => {
+      vi.useFakeTimers();
+      const textarea = document.createElement('textarea');
+      document.body.appendChild(textarea);
+      textarea.value = 'hello';
+
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+      vi.advanceTimersByTime(300);
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback).toHaveBeenCalledWith('hello', textarea);
+
+      document.body.removeChild(textarea);
+    });
+
+    it('handles rapid paste-paste correctly', () => {
+      const textarea = document.createElement('textarea');
+      document.body.appendChild(textarea);
+      textarea.value = '';
+
+      const paste1 = new Event('paste', { bubbles: true }) as any;
+      paste1.clipboardData = { getData: () => 'first' };
+      textarea.dispatchEvent(paste1);
+      expect(callback).toHaveBeenCalledWith('first', textarea);
+
+      textarea.value = 'first';
+      const paste2 = new Event('paste', { bubbles: true }) as any;
+      paste2.clipboardData = { getData: () => ' second' };
+      textarea.dispatchEvent(paste2);
+      expect(callback).toHaveBeenCalledWith('first second', textarea);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+      document.body.removeChild(textarea);
+    });
+
+    it('handles type-paste-type-paste sequence', () => {
+      vi.useFakeTimers();
+      const textarea = document.createElement('textarea');
+      document.body.appendChild(textarea);
+
+      // Type
+      textarea.value = 'a';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Paste (cancels debounce from typing)
+      const paste1 = new Event('paste', { bubbles: true }) as any;
+      paste1.clipboardData = { getData: () => 'PASTED1' };
+      textarea.dispatchEvent(paste1);
+      expect(callback).toHaveBeenCalledOnce();
+
+      // Advance past first debounce — should not fire
+      vi.advanceTimersByTime(300);
+      expect(callback).toHaveBeenCalledOnce();
+
+      // Type again
+      textarea.value = 'aPASTED1b';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Paste again (cancels debounce from second typing)
+      const paste2 = new Event('paste', { bubbles: true }) as any;
+      paste2.clipboardData = { getData: () => 'PASTED2' };
+      textarea.dispatchEvent(paste2);
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback).toHaveBeenLastCalledWith('aPASTED1bPASTED2', textarea);
+
+      // Advance past second debounce — should not fire
+      vi.advanceTimersByTime(300);
+      expect(callback).toHaveBeenCalledTimes(2);
+
+      document.body.removeChild(textarea);
+    });
+
+    it('isolates debounce cancellation per element', () => {
+      vi.useFakeTimers();
+      const textarea1 = document.createElement('textarea');
+      const textarea2 = document.createElement('textarea');
+      document.body.appendChild(textarea1);
+      document.body.appendChild(textarea2);
+
+      // Type in both
+      textarea1.value = 'text1';
+      textarea1.dispatchEvent(new Event('input', { bubbles: true }));
+      textarea2.value = 'text2';
+      textarea2.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Paste only in textarea1
+      const paste = new Event('paste', { bubbles: true }) as any;
+      paste.clipboardData = { getData: () => ' pasted' };
+      textarea1.dispatchEvent(paste);
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback).toHaveBeenCalledWith('text1 pasted', textarea1);
+
+      // textarea2 debounce should still fire
+      vi.advanceTimersByTime(300);
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback).toHaveBeenLastCalledWith('text2', textarea2);
+
+      document.body.removeChild(textarea1);
+      document.body.removeChild(textarea2);
+    });
+  });
+
   describe('sendScanMessage', () => {
     it('sends SCAN_TEXT message to background', async () => {
       const mockResponse = { action: 'allow', detections: [] };
