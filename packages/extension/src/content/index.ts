@@ -4,7 +4,7 @@ import { showWarningBanner, removeWarningBanner } from './ui/warning-banner';
 import { redactText } from '../engine/policy';
 import type { PolicyDecision } from '../types';
 
-function handleScanResult(decision: PolicyDecision, element: HTMLElement): void {
+export function handleScanResult(decision: PolicyDecision, element: HTMLElement): void {
   if (decision.action === 'allow') {
     removeWarningBanner();
     return;
@@ -13,7 +13,7 @@ function handleScanResult(decision: PolicyDecision, element: HTMLElement): void 
   showWarningBanner(decision, (userAction) => {
     switch (userAction) {
       case 'block':
-        // Do nothing — text stays, user must manually remove
+        setElementText(element, '[BLOCKED]');
         break;
       case 'redact': {
         const currentText = getElementText(element);
@@ -43,9 +43,12 @@ function setElementText(element: HTMLElement, text: string): void {
   }
 }
 
+let scanSequence = 0;
+
 async function onScan(text: string, element: HTMLElement): Promise<void> {
+  const seq = ++scanSequence;
   const decision = await sendScanMessage(text);
-  if (decision) {
+  if (decision && seq === scanSequence) {
     handleScanResult(decision, element);
   }
 }
