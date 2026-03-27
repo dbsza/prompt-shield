@@ -68,6 +68,27 @@ Users can define their own patterns as JSON and load them dynamically — no ext
 Supported severity levels: `critical`, `high`, `medium`, `low`
 Supported actions: `allow`, `warn`, `redact`, `block`
 
+## Verified Domains
+
+By default, Prompt Shield is active on every site. Verified Domains lets you restrict protection to a specific list of sites — useful when you want to target AI tools only and avoid interference on other pages.
+
+### Managing domains
+
+Open the extension popup and use the **Verified Domains** section:
+
+- **Add** — type a hostname (e.g., `claude.ai`) or paste a full URL (`https://chatgpt.com/chat`) and press **Add** or **Enter**. Full URLs are automatically trimmed to their hostname.
+- **Remove** — click the **Remove** button next to any entry to delete it.
+
+### Matching rules
+
+| Input | Matches |
+|---|---|
+| `chatgpt.com` | `chatgpt.com`, `www.chatgpt.com`, `subdomain.chatgpt.com` |
+| `chat.openai.com` | `chat.openai.com` and its subdomains only |
+| `evil-chatgpt.com` | does **not** match `chatgpt.com` (not a true subdomain) |
+
+Matching is case-insensitive and trims leading/trailing whitespace from stored entries.
+
 ## Architecture
 
 This is a Yarn monorepo with two packages:
@@ -103,7 +124,8 @@ packages/
   | `background/index.ts` | Service worker: initializes WASM scanner, handles messages |
   | `engine/policy.ts` | Translates scan results into a `PolicyDecision` |
   | `storage/rules-storage.ts` | Persists rules and settings to `chrome.storage` |
-  | `popup/` | Extension popup: status, rule list, rule editor, import/export |
+  | `popup/` | Extension popup: status, verified domains, rule list, rule editor, import/export |
+  | `utils/domain-match.ts` | Suffix-based hostname matching for the domain allowlist |
   | `wasm/loader.ts` | Loads and caches the WASM module |
 
 ## Performance Targets
