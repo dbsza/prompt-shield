@@ -191,6 +191,35 @@ body {
   justify-content: flex-end;
 }
 
+/* Section Divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid #2a2a4a;
+  margin: 4px 0 16px;
+}
+
+/* Domain Add Row */
+.domain-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.domain-add-row input {
+  flex: 1;
+  padding: 6px 10px;
+  background: #1a1a2e;
+  border: 1px solid #2a2a4a;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 12px;
+}
+
+.domain-add-row input:focus {
+  outline: none;
+  border-color: #e94560;
+}
+
 /* Import/Export */
 .import-export-actions {
   display: flex;
