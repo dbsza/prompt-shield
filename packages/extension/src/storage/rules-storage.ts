@@ -39,3 +39,13 @@ export async function saveSettings(settings: Settings): Promise<void> {
     });
   });
 }
+
+export async function loadAllowedDomains(): Promise<string[]> {
+  const settings = await loadSettings();
+  return settings.allowedDomains;
+}
+
+export async function saveAllowedDomains(domains: string[]): Promise<void> {
+  const settings = await loadSettings();
+  await saveSettings({ ...settings, allowedDomains: domains });
+}
