@@ -36,6 +36,7 @@ export interface Settings {
   showNotifications: boolean;
   entropyThreshold: number;
   debounceMs: number;
+  allowedDomains: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +44,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showNotifications: true,
   entropyThreshold: 4.5,
   debounceMs: 300,
+  allowedDomains: [],
 };
 
 // Message types
@@ -52,7 +54,9 @@ export type MessageType =
   | 'GET_RULES'
   | 'GET_STATUS'
   | 'SCAN_RESULT'
-  | 'RULES_UPDATED';
+  | 'RULES_UPDATED'
+  | 'CHECK_DOMAIN'
+  | 'SET_DOMAINS';
 
 export interface ScanTextMessage {
   type: 'SCAN_TEXT';
@@ -83,16 +87,29 @@ export interface RulesUpdatedMessage {
   rules: Rule[];
 }
 
+export interface CheckDomainMessage {
+  type: 'CHECK_DOMAIN';
+  hostname: string;
+}
+
+export interface SetDomainsMessage {
+  type: 'SET_DOMAINS';
+  domains: string[];
+}
+
 export type ExtensionMessage =
   | ScanTextMessage
   | SetRulesMessage
   | GetRulesMessage
   | GetStatusMessage
   | ScanResultMessage
-  | RulesUpdatedMessage;
+  | RulesUpdatedMessage
+  | CheckDomainMessage
+  | SetDomainsMessage;
 
 export interface ExtensionStatus {
   enabled: boolean;
   rulesCount: number;
   totalDetections: number;
+  allowedDomains: string[];
 }
