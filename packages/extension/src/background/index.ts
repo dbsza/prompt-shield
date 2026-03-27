@@ -6,7 +6,8 @@ import type {
   PolicyDecision,
 } from '../types';
 import { evaluatePolicy } from '../engine/policy';
-import { loadRules, saveRules, loadSettings } from '../storage/rules-storage';
+import { loadRules, saveRules, loadSettings, saveAllowedDomains } from '../storage/rules-storage';
+import { isDomainAllowed } from '../utils/domain-match';
 import type { WasmScannerInstance } from '../wasm/loader';
 import { getScanner } from '../wasm/loader';
 
@@ -79,14 +80,28 @@ function handleMessage(
     }
 
     case 'GET_STATUS': {
-      const settings = loadSettings();
-      settings.then((s) => {
+      loadSettings().then((s) => {
         const status: ExtensionStatus = {
           enabled: s.enabled,
           rulesCount: currentRules.length,
           totalDetections,
+          allowedDomains: s.allowedDomains,
         };
         sendResponse(status);
+      });
+      return true; // async response
+    }
+
+    case 'CHECK_DOMAIN': {
+      loadSettings().then((s) => {
+        sendResponse({ allowed: isDomainAllowed(message.hostname, s.allowedDomains) });
+      });
+      return true; // async response
+    }
+
+    case 'SET_DOMAINS': {
+      saveAllowedDomains(message.domains).then(() => {
+        sendResponse({ success: true });
       });
       return true; // async response
     }
