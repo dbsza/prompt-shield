@@ -2,7 +2,7 @@ import { attachListeners, setScanCallback, sendScanMessage } from './interceptor
 import { startObserver } from './observer';
 import { showWarningBanner, removeWarningBanner } from './ui/warning-banner';
 import { redactText } from '../engine/policy';
-import type { PolicyDecision } from '../types';
+import type { PolicyDecision, CheckDomainMessage } from '../types';
 
 export function handleScanResult(decision: PolicyDecision, element: HTMLElement): void {
   if (decision.action === 'allow') {
@@ -53,7 +53,29 @@ async function onScan(text: string, element: HTMLElement): Promise<void> {
   }
 }
 
-// Initialize
-setScanCallback(onScan);
-attachListeners();
-startObserver();
+async function initialize(): Promise<void> {
+  const hostname = window.location.hostname;
+
+  try {
+    const response = await new Promise<{ allowed: boolean }>((resolve) => {
+      const msg: CheckDomainMessage = { type: 'CHECK_DOMAIN', hostname };
+      chrome.runtime.sendMessage(msg, (resp) => {
+        if (chrome.runtime.lastError) {
+          resolve({ allowed: true }); // fail-open: default to active
+          return;
+        }
+        resolve(resp as { allowed: boolean });
+      });
+    });
+
+    if (!response.allowed) return;
+  } catch {
+    // fail-open: on any error, initialize normally
+  }
+
+  setScanCallback(onScan);
+  attachListeners();
+  startObserver();
+}
+
+initialize();
