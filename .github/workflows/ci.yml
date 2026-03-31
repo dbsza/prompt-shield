@@ -83,7 +83,7 @@ jobs:
       - name: Sync WASM glue
         run: node scripts/sync-wasm-glue.js
 
-      - run: vitest run
+      - run: yarn test
 
   e2e-tests:
     name: E2E Tests
