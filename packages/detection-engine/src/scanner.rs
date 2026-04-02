@@ -233,9 +233,6 @@ mod tests {
 
         // Verify it can be deserialized
         let deserialized: ScanResult = serde_json::from_str(&json).unwrap();
-        assert_eq!(
-            deserialized.detections.len(),
-            result.detections.len()
-        );
+        assert_eq!(deserialized.detections.len(), result.detections.len());
     }
 }

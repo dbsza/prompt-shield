@@ -17,14 +17,11 @@ test.describe('Performance', () => {
 
     const startTime = Date.now();
 
-    await page.evaluate(
-      (text) => {
-        const ta = document.querySelector('#textarea-field') as HTMLTextAreaElement;
-        ta.value = text;
-        ta.dispatchEvent(new Event('input', { bubbles: true }));
-      },
-      largeText,
-    );
+    await page.evaluate((text) => {
+      const ta = document.querySelector('#textarea-field') as HTMLTextAreaElement;
+      ta.value = text;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }, largeText);
 
     // Wait for debounce + scan
     await page.waitForTimeout(500);

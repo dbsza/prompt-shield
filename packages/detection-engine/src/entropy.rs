@@ -22,7 +22,11 @@ fn shannon_entropy(data: &str) -> f64 {
     })
 }
 
-pub fn scan_entropy(text: &str, threshold: Option<f64>, window_size: Option<usize>) -> Vec<Detection> {
+pub fn scan_entropy(
+    text: &str,
+    threshold: Option<f64>,
+    window_size: Option<usize>,
+) -> Vec<Detection> {
     let threshold = threshold.unwrap_or(DEFAULT_THRESHOLD);
     let window = window_size.unwrap_or(DEFAULT_WINDOW_SIZE);
     let mut detections = Vec::new();
@@ -127,10 +131,7 @@ mod tests {
         // Base64-like random string
         let text = "here is a secret: aB3kF9mZ2xR7wQ1pL8nY4vT6cH0jD5eG";
         let detections = scan_entropy(text, Some(4.0), Some(15));
-        assert!(
-            !detections.is_empty(),
-            "Should detect high entropy token"
-        );
+        assert!(!detections.is_empty(), "Should detect high entropy token");
         assert!(detections.iter().all(|d| d.rule_name == "high_entropy"));
     }
 

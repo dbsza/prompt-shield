@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import {
-  showWarningBanner,
-  removeWarningBanner,
-  isBannerVisible,
-} from '../warning-banner';
+import { showWarningBanner, removeWarningBanner, isBannerVisible } from '../warning-banner';
 import type { PolicyDecision, Detection } from '../../../types';
 
 function makeDecision(detections: Partial<Detection>[] = []): PolicyDecision {

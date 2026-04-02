@@ -1,5 +1,11 @@
 import './styles.css';
-import type { Rule, SetRulesMessage, GetRulesMessage, SetDomainsMessage, ExtensionStatus } from '../types';
+import type {
+  Rule,
+  SetRulesMessage,
+  GetRulesMessage,
+  SetDomainsMessage,
+  ExtensionStatus,
+} from '../types';
 import { renderStatusIndicator } from './StatusIndicator';
 import { renderRuleList } from './RuleList';
 import { renderRuleEditor } from './RuleEditor';
