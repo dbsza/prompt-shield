@@ -66,7 +66,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Enable Corepack
         run: corepack enable
@@ -83,7 +83,7 @@ jobs:
       - name: Sync WASM glue
         run: node scripts/sync-wasm-glue.js
 
-      - run: vitest run
+      - run: npx vitest run
 
   e2e-tests:
     name: E2E Tests
@@ -97,7 +97,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Enable Corepack
         run: corepack enable
@@ -121,7 +121,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - run: npx playwright test
+      - run: xvfb-run npx playwright test
 
   lint:
     name: Lint & Type Check
@@ -132,7 +132,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Enable Corepack
         run: corepack enable
@@ -154,7 +154,7 @@ jobs:
 
       - name: TypeScript type check
         working-directory: packages/extension
-        run: tsc --noEmit
+        run: npx tsc --noEmit
 
       - name: Rust format check
         working-directory: packages/detection-engine
