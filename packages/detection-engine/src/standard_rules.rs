@@ -259,10 +259,8 @@ mod tests {
     // Private key tests
     #[test]
     fn test_detect_private_key() {
-        let detections = scan_standard_rules(
-            "-----BEGIN RSA PRIVATE KEY-----\nMIIEow...",
-            &rules(),
-        );
+        let detections =
+            scan_standard_rules("-----BEGIN RSA PRIVATE KEY-----\nMIIEow...", &rules());
         assert!(detections.iter().any(|d| d.rule_name == "private_key"));
     }
 
@@ -275,20 +273,15 @@ mod tests {
     // API key tests
     #[test]
     fn test_detect_api_key() {
-        let detections = scan_standard_rules(
-            r#"api_key: sk_live_abcdef1234567890abcd"#,
-            &rules(),
-        );
+        let detections = scan_standard_rules(r#"api_key: sk_live_abcdef1234567890abcd"#, &rules());
         assert!(detections.iter().any(|d| d.rule_name == "api_key"));
     }
 
     // GitHub token tests
     #[test]
     fn test_detect_github_token() {
-        let detections = scan_standard_rules(
-            "token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij",
-            &rules(),
-        );
+        let detections =
+            scan_standard_rules("token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij", &rules());
         assert!(detections.iter().any(|d| d.rule_name == "github_token"));
     }
 

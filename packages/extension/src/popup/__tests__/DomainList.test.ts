@@ -15,7 +15,7 @@ describe('renderDomainList', () => {
   it('shows empty message when domains list is empty', () => {
     const container = makeContainer();
     renderDomainList(container, [], vi.fn());
-    expect(container.textContent).toContain('No domains configured');
+    expect(container.textContent).toContain('No verified domains');
     expect(container.querySelector('.rule-item')).toBeNull();
   });
 

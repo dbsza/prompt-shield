@@ -60,17 +60,16 @@ impl ScanResult {
         let has_critical = detections.iter().any(|d| d.severity == Severity::Critical);
         let has_high = detections.iter().any(|d| d.severity == Severity::High);
 
-        let recommended_action = detections
-            .iter()
-            .map(|d| &d.action)
-            .fold(Action::Allow, |acc, action| {
-                match (&acc, action) {
+        let recommended_action =
+            detections
+                .iter()
+                .map(|d| &d.action)
+                .fold(Action::Allow, |acc, action| match (&acc, action) {
                     (Action::Block, _) | (_, Action::Block) => Action::Block,
                     (Action::Redact, _) | (_, Action::Redact) => Action::Redact,
                     (Action::Warn, _) | (_, Action::Warn) => Action::Warn,
                     _ => Action::Allow,
-                }
-            });
+                });
 
         ScanResult {
             detections,

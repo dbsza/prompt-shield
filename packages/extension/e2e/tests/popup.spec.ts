@@ -13,8 +13,8 @@ test.describe('Popup', () => {
     const page = await context.newPage();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
 
-    await expect(page.locator('.empty-rules')).toBeVisible();
-    await expect(page.locator('.empty-rules')).toContainText('No custom rules');
+    await expect(page.locator('.empty-rules').first()).toBeVisible();
+    await expect(page.locator('.empty-rules').first()).toContainText('No custom rules');
   });
 
   test('can add a custom rule', async ({ context, extensionId }) => {
