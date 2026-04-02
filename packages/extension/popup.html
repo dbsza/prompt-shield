@@ -1,45 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prompt Shield</title>
-</head>
-<body>
-  <div class="popup-container">
-    <header class="popup-header">
-      <h1>&#x1f6e1; Prompt Shield</h1>
-      <div id="status-indicator"></div>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Shield</title>
+  </head>
+  <body>
+    <div class="popup-container">
+      <header class="popup-header">
+        <h1>&#x1f6e1; Prompt Shield</h1>
+        <div id="status-indicator"></div>
+      </header>
 
-    <section class="popup-section">
-      <h2>Verified Domains</h2>
-      <div id="domain-list"></div>
-      <div class="domain-add-row">
-        <input type="text" id="domain-input" placeholder="e.g., claude.ai" />
-        <button id="add-domain-btn" class="btn btn-primary btn-small">Add</button>
-      </div>
-    </section>
+      <section class="popup-section">
+        <h2>Verified Domains</h2>
+        <div id="domain-list"></div>
+        <div class="domain-add-row">
+          <input type="text" id="domain-input" placeholder="e.g., claude.ai" />
+          <button id="add-domain-btn" class="btn btn-primary btn-small">Add</button>
+        </div>
+      </section>
 
-    <hr class="section-divider" />
+      <hr class="section-divider" />
 
-    <section class="popup-section">
-      <h2>Rules</h2>
-      <div id="rule-list"></div>
-      <button id="add-rule-btn" class="btn btn-primary">Add Rule</button>
-    </section>
+      <section class="popup-section">
+        <h2>Rules</h2>
+        <div id="rule-list"></div>
+        <button id="add-rule-btn" class="btn btn-primary">Add Rule</button>
+      </section>
 
-    <section class="popup-section" id="rule-editor-section" style="display: none;">
-      <h2 id="editor-title">Add Rule</h2>
-      <div id="rule-editor"></div>
-    </section>
+      <section class="popup-section" id="rule-editor-section" style="display: none">
+        <h2 id="editor-title">Add Rule</h2>
+        <div id="rule-editor"></div>
+      </section>
 
-    <section class="popup-section">
-      <h2>Import / Export</h2>
-      <div id="import-export"></div>
-    </section>
-  </div>
+      <section class="popup-section">
+        <h2>Import / Export</h2>
+        <div id="import-export"></div>
+      </section>
+    </div>
 
-  <script type="module" src="./src/popup/index.ts"></script>
-</body>
+    <script type="module" src="./src/popup/index.ts"></script>
+  </body>
 </html>

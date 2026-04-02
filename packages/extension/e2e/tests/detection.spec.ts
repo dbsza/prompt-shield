@@ -28,14 +28,11 @@ test.describe('Detection', () => {
     // Simulate paste with JWT token
     const jwt =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U';
-    await page.evaluate(
-      (token) => {
-        const ta = document.querySelector('#textarea-field') as HTMLTextAreaElement;
-        ta.value = token;
-        ta.dispatchEvent(new Event('input', { bubbles: true }));
-      },
-      jwt,
-    );
+    await page.evaluate((token) => {
+      const ta = document.querySelector('#textarea-field') as HTMLTextAreaElement;
+      ta.value = token;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }, jwt);
 
     await page.waitForTimeout(500);
 
@@ -78,7 +75,9 @@ test.describe('Detection', () => {
   //     t=0ms   paste → handlePaste scans "...ab 418.523.110-53" → banner shows 3 CPFs ✓
   //     t=300ms debounce fires with stale captured text "...ab " → banner replaced with 2 CPFs ✗
   //   The user clicks Redact & Send on the stale 2-CPF banner and the last CPF is never redacted.
-  test('redacts all CPF occurrences when paste is followed by a stale debounced scan', async ({ context }) => {
+  test('redacts all CPF occurrences when paste is followed by a stale debounced scan', async ({
+    context,
+  }) => {
     const page = await context.newPage();
     await page.goto(TEST_PAGE);
 

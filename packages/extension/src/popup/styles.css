@@ -226,7 +226,7 @@ body {
   gap: 8px;
 }
 
-.import-export-actions input[type="file"] {
+.import-export-actions input[type='file'] {
   display: none;
 }
 

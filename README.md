@@ -36,14 +36,14 @@ User Feedback UI
 
 ### Built-in Standard Rules
 
-| Category | What is detected |
-|---|---|
-| PII | Email addresses, phone numbers (US/international) |
-| PII | Credit cards (Visa, MasterCard, Amex, Discover) |
-| PII | SSN (US), CPF (Brazil) |
-| Secrets | AWS Access Key, AWS Secret Key |
-| Secrets | JWT tokens, private keys (RSA, EC, DSA, OpenSSH) |
-| Secrets | Generic API keys, GitHub tokens, Slack tokens |
+| Category | What is detected                                  |
+| -------- | ------------------------------------------------- |
+| PII      | Email addresses, phone numbers (US/international) |
+| PII      | Credit cards (Visa, MasterCard, Amex, Discover)   |
+| PII      | SSN (US), CPF (Brazil)                            |
+| Secrets  | AWS Access Key, AWS Secret Key                    |
+| Secrets  | JWT tokens, private keys (RSA, EC, DSA, OpenSSH)  |
+| Secrets  | Generic API keys, GitHub tokens, Slack tokens     |
 
 ### Entropy Analysis
 
@@ -81,11 +81,11 @@ Open the extension popup and use the **Verified Domains** section:
 
 ### Matching rules
 
-| Input | Matches |
-|---|---|
-| `chatgpt.com` | `chatgpt.com`, `www.chatgpt.com`, `subdomain.chatgpt.com` |
-| `chat.openai.com` | `chat.openai.com` and its subdomains only |
-| `evil-chatgpt.com` | does **not** match `chatgpt.com` (not a true subdomain) |
+| Input              | Matches                                                   |
+| ------------------ | --------------------------------------------------------- |
+| `chatgpt.com`      | `chatgpt.com`, `www.chatgpt.com`, `subdomain.chatgpt.com` |
+| `chat.openai.com`  | `chat.openai.com` and its subdomains only                 |
+| `evil-chatgpt.com` | does **not** match `chatgpt.com` (not a true subdomain)   |
 
 Matching is case-insensitive and trims leading/trailing whitespace from stored entries.
 
@@ -116,24 +116,24 @@ packages/
 - **Language:** TypeScript, built with Vite
 - **Key components:**
 
-  | Component | Role |
-  |---|---|
-  | `content/interceptor.ts` | Hooks into input/paste/submit events on every page |
-  | `content/observer.ts` | Watches for dynamically added input elements (MutationObserver) |
-  | `content/ui/warning-banner.ts` | Injects the in-page warning UI |
-  | `background/index.ts` | Service worker: initializes WASM scanner, handles messages |
-  | `engine/policy.ts` | Translates scan results into a `PolicyDecision` |
-  | `storage/rules-storage.ts` | Persists rules and settings to `chrome.storage` |
-  | `popup/` | Extension popup: status, verified domains, rule list, rule editor, import/export |
-  | `utils/domain-match.ts` | Suffix-based hostname matching for the domain allowlist |
-  | `wasm/loader.ts` | Loads and caches the WASM module |
+  | Component                      | Role                                                                             |
+  | ------------------------------ | -------------------------------------------------------------------------------- |
+  | `content/interceptor.ts`       | Hooks into input/paste/submit events on every page                               |
+  | `content/observer.ts`          | Watches for dynamically added input elements (MutationObserver)                  |
+  | `content/ui/warning-banner.ts` | Injects the in-page warning UI                                                   |
+  | `background/index.ts`          | Service worker: initializes WASM scanner, handles messages                       |
+  | `engine/policy.ts`             | Translates scan results into a `PolicyDecision`                                  |
+  | `storage/rules-storage.ts`     | Persists rules and settings to `chrome.storage`                                  |
+  | `popup/`                       | Extension popup: status, verified domains, rule list, rule editor, import/export |
+  | `utils/domain-match.ts`        | Suffix-based hostname matching for the domain allowlist                          |
+  | `wasm/loader.ts`               | Loads and caches the WASM module                                                 |
 
 ## Performance Targets
 
-| Stage | Target |
-|---|---|
-| Regex scan | < 1 ms |
-| Entropy scan | 2–3 ms |
+| Stage         | Target        |
+| ------------- | ------------- |
+| Regex scan    | < 1 ms        |
+| Entropy scan  | 2–3 ms        |
 | Full pipeline | < 15 ms total |
 
 Scanning runs in the background service worker and never blocks the UI thread.

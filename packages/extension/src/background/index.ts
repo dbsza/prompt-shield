@@ -1,10 +1,4 @@
-import type {
-  ExtensionMessage,
-  ScanResult,
-  Rule,
-  ExtensionStatus,
-  PolicyDecision,
-} from '../types';
+import type { ExtensionMessage, ScanResult, Rule, ExtensionStatus, PolicyDecision } from '../types';
 import { evaluatePolicy } from '../engine/policy';
 import { loadRules, saveRules, loadSettings, saveAllowedDomains } from '../storage/rules-storage';
 import { isDomainAllowed } from '../utils/domain-match';

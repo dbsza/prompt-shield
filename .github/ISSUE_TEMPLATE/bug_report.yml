@@ -11,7 +11,7 @@ body:
     id: browser
     attributes:
       label: Browser & Version
-      placeholder: "e.g. Chrome 124.0.6367.91"
+      placeholder: 'e.g. Chrome 124.0.6367.91'
     validations:
       required: true
 

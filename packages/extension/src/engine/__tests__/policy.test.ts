@@ -36,47 +36,33 @@ describe('evaluatePolicy', () => {
   });
 
   it('returns warn for warn-only detections', () => {
-    const result = evaluatePolicy(
-      makeScanResult([makeDetection({ action: 'warn' })]),
-    );
+    const result = evaluatePolicy(makeScanResult([makeDetection({ action: 'warn' })]));
     expect(result.action).toBe('warn');
   });
 
   it('returns block when any detection is block', () => {
     const result = evaluatePolicy(
-      makeScanResult([
-        makeDetection({ action: 'warn' }),
-        makeDetection({ action: 'block' }),
-      ]),
+      makeScanResult([makeDetection({ action: 'warn' }), makeDetection({ action: 'block' })]),
     );
     expect(result.action).toBe('block');
   });
 
   it('returns redact when highest is redact', () => {
     const result = evaluatePolicy(
-      makeScanResult([
-        makeDetection({ action: 'warn' }),
-        makeDetection({ action: 'redact' }),
-      ]),
+      makeScanResult([makeDetection({ action: 'warn' }), makeDetection({ action: 'redact' })]),
     );
     expect(result.action).toBe('redact');
   });
 
   it('block takes priority over redact', () => {
     const result = evaluatePolicy(
-      makeScanResult([
-        makeDetection({ action: 'redact' }),
-        makeDetection({ action: 'block' }),
-      ]),
+      makeScanResult([makeDetection({ action: 'redact' }), makeDetection({ action: 'block' })]),
     );
     expect(result.action).toBe('block');
   });
 
   it('includes all detections in decision', () => {
-    const detections = [
-      makeDetection({ rule_name: 'a' }),
-      makeDetection({ rule_name: 'b' }),
-    ];
+    const detections = [makeDetection({ rule_name: 'a' }), makeDetection({ rule_name: 'b' })];
     const result = evaluatePolicy(makeScanResult(detections));
     expect(result.detections).toHaveLength(2);
   });
@@ -105,9 +91,7 @@ describe('redactText', () => {
   });
 
   it('handles overlapping positions correctly', () => {
-    const detections: Detection[] = [
-      makeDetection({ start: 0, end: 5, matched_text: '12345' }),
-    ];
+    const detections: Detection[] = [makeDetection({ start: 0, end: 5, matched_text: '12345' })];
     const result = redactText('12345', detections);
     expect(result).toBe('[REDACTED]');
   });
