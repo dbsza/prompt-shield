@@ -6,17 +6,19 @@ export function renderImportExport(
   container: HTMLElement,
   rules: Rule[],
   onImport: ImportCallback,
+  lockRules = false,
 ): void {
   container.innerHTML = `
     <div class="import-export-actions">
-      <label class="file-label" for="import-file">Import JSON</label>
-      <input type="file" id="import-file" accept=".json">
+      ${lockRules ? '' : '<label class="file-label" for="import-file">Import JSON</label><input type="file" id="import-file" accept=".json">'}
       <button class="btn btn-secondary" id="export-btn">Export JSON</button>
     </div>
   `;
 
-  const fileInput = container.querySelector('#import-file') as HTMLInputElement;
-  fileInput.addEventListener('change', () => handleImport(fileInput, onImport));
+  if (!lockRules) {
+    const fileInput = container.querySelector('#import-file') as HTMLInputElement;
+    fileInput.addEventListener('change', () => handleImport(fileInput, onImport));
+  }
 
   container.querySelector('#export-btn')!.addEventListener('click', () => handleExport(rules));
 }

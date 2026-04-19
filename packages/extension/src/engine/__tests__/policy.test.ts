@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { evaluatePolicy, redactText } from '../policy';
+import { evaluatePolicy, redactText, applyMinimumAction } from '../policy';
 import type { ScanResult, Detection } from '../../types';
 
 function makeDetection(overrides: Partial<Detection> = {}): Detection {
@@ -119,5 +119,39 @@ describe('redactText', () => {
     ];
     const result = redactText('abcdef', detections);
     expect(result).toBe('[REDACTED][REDACTED]');
+  });
+});
+
+describe('applyMinimumAction', () => {
+  it('does not change action when decision already meets minimum', () => {
+    const decision = { action: 'block' as const, detections: [] };
+    const result = applyMinimumAction(decision, 'warn');
+    expect(result.action).toBe('block');
+  });
+
+  it('escalates action when below minimum', () => {
+    const decision = { action: 'warn' as const, detections: [] };
+    const result = applyMinimumAction(decision, 'block');
+    expect(result.action).toBe('block');
+  });
+
+  it('escalates allow to redact when minimum is redact', () => {
+    const decision = { action: 'allow' as const, detections: [] };
+    const result = applyMinimumAction(decision, 'redact');
+    expect(result.action).toBe('redact');
+  });
+
+  it('preserves detections when escalating', () => {
+    const detections = [makeDetection({ action: 'warn' })];
+    const decision = { action: 'warn' as const, detections };
+    const result = applyMinimumAction(decision, 'block');
+    expect(result.action).toBe('block');
+    expect(result.detections).toBe(detections);
+  });
+
+  it('does not change decision when minimum matches current action', () => {
+    const decision = { action: 'redact' as const, detections: [] };
+    const result = applyMinimumAction(decision, 'redact');
+    expect(result.action).toBe('redact');
   });
 });

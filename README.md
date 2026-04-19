@@ -237,8 +237,74 @@ All scanning happens locally in your browser. No text is ever sent to an externa
 - Context-aware detection (code vs. natural language)
 - Support for additional Chromium-based browsers
 
-### Enterprise edtion
+### Enterprise edition
 
-- Enterprise policy distribution
+Prompt Shield supports enterprise deployment via **Managed Browser Policies**, allowing IT administrators to enforce configuration across all managed devices without user intervention.
+
+#### Managed policies
+
+Policies are distributed through the browser's native enterprise policy mechanism (`chrome.storage.managed`) and are **read-only** for users. The extension validates and applies them automatically on startup and whenever the policy is updated by the administrator.
+
+| Policy key | Type | Description |
+|---|---|---|
+| `ForceEnabled` | boolean | Prevents users from disabling the extension |
+| `ManagedRules` | Rule[] | Mandatory detection rules applied to all users — not editable or removable |
+| `ManagedDomains` | string[] | Domains that are always monitored regardless of user domain settings |
+| `LockRules` | boolean | Prevents users from adding, editing, or removing any custom rules |
+| `LockDomains` | boolean | Prevents users from modifying the verified domains list |
+| `MinimumAction` | string | Floor for enforcement: `warn`, `redact`, or `block` — all detections are escalated to at least this level |
+| `EntropyThreshold` | number | Overrides the Shannon entropy detection threshold |
+| `ShowNotifications` | boolean | Forces the notification display setting |
+
+#### Behaviour
+
+- **Managed rules** are merged with user-defined rules. Admins establish a baseline; users can still add their own on top (unless `LockRules` is set).
+- **Managed domains** are merged with user domains. Even if the user clears their list, managed domains remain monitored.
+- **`MinimumAction`** applies globally — if the policy is set to `block`, every detection results in a block regardless of the individual rule's action.
+- If managed storage is unavailable (non-enterprise environment), the extension falls back to user settings with no degradation.
+
+#### Deploying policies
+
+**Chrome / Chromium — Windows (Group Policy / registry)**
+```
+HKLM\Software\Policies\Google\Chrome\3rdparty\extensions\<EXTENSION_ID>\policy
+```
+
+**Chrome / Chromium — macOS (MDM / plist)**
+```xml
+<!-- com.google.Chrome.extensions.<EXTENSION_ID>.plist -->
+<dict>
+  <key>ForceEnabled</key><true/>
+  <key>MinimumAction</key><string>block</string>
+  <key>LockRules</key><true/>
+  <key>ManagedDomains</key>
+  <array>
+    <string>chatgpt.com</string>
+    <string>claude.ai</string>
+  </array>
+</dict>
+```
+
+**Chrome / Chromium — Linux / ChromeOS**
+```json
+// /etc/opt/chrome/policies/managed/<policy_file>.json
+{
+  "3rdparty": {
+    "extensions": {
+      "<EXTENSION_ID>": {
+        "ForceEnabled": true,
+        "MinimumAction": "block",
+        "LockRules": true,
+        "ManagedDomains": ["chatgpt.com", "claude.ai"]
+      }
+    }
+  }
+}
+```
+
+#### UI indicators
+
+When one or more managed policies are active, the extension popup displays an **🏢 Enterprise Managed** badge in the status bar. Managed rules and domains appear in a dedicated section with a **🔒** lock icon, clearly separated from user-configurable entries. Controls for adding or editing entries are hidden when the corresponding lock policy is active.
+
 - Integration with enterprise identity systems
 - Centralized rule management and telemetry dashboard

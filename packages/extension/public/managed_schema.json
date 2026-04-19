@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "properties": {
+    "ForceEnabled": {
+      "title": "Force Extension Enabled",
+      "description": "When set to true, the extension cannot be disabled by the user.",
+      "type": "boolean"
+    },
+    "ManagedRules": {
+      "title": "Managed Detection Rules",
+      "description": "Mandatory detection rules applied to all users. Users cannot edit or remove these rules.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "guid": { "type": "string" },
+          "name": { "type": "string" },
+          "regex": { "type": "string" },
+          "severity": { "type": "string" },
+          "action": { "type": "string" }
+        }
+      }
+    },
+    "ManagedDomains": {
+      "title": "Managed Monitored Domains",
+      "description": "Domains that are always monitored regardless of user domain settings.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "LockDomains": {
+      "title": "Lock Domain Configuration",
+      "description": "When true, users cannot add or remove domains from the allowed domains list.",
+      "type": "boolean"
+    },
+    "LockRules": {
+      "title": "Lock Rule Configuration",
+      "description": "When true, users cannot add, edit, or remove custom detection rules.",
+      "type": "boolean"
+    },
+    "MinimumAction": {
+      "title": "Minimum Enforcement Action",
+      "description": "The minimum action to take on any detection. Possible values: warn, redact, block.",
+      "type": "string"
+    },
+    "EntropyThreshold": {
+      "title": "Entropy Detection Threshold",
+      "description": "Override the Shannon entropy threshold for high-entropy string detection.",
+      "type": "number"
+    },
+    "ShowNotifications": {
+      "title": "Force Notification Setting",
+      "description": "Override whether detection notifications are shown to users.",
+      "type": "boolean"
+    }
+  }
+}

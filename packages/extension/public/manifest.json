@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "description": "Prevents accidental leakage of sensitive data to AI tools and web services",
   "permissions": ["storage", "activeTab"],
+  "storage": {
+    "managed_schema": "managed_schema.json"
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"

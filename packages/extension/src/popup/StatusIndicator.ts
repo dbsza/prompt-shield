@@ -27,5 +27,8 @@ export function refreshStatus(container: HTMLElement): void {
       dot.className = 'status-dot inactive';
       text.textContent = 'Disabled';
     }
+
+
   });
 }
+

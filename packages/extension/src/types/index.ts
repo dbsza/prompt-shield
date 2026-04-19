@@ -112,4 +112,22 @@ export interface ExtensionStatus {
   rulesCount: number;
   totalDetections: number;
   allowedDomains: string[];
+  managed: boolean;
+  managedRules: Rule[];
+  managedRulesCount: number;
+  managedDomains: string[];
+  lockDomains: boolean;
+  lockRules: boolean;
+  forceEnabled: boolean;
+}
+
+export interface ManagedPolicy {
+  ForceEnabled?: boolean;
+  ManagedRules?: Rule[];
+  ManagedDomains?: string[];
+  LockDomains?: boolean;
+  LockRules?: boolean;
+  MinimumAction?: Action;
+  EntropyThreshold?: number;
+  ShowNotifications?: boolean;
 }

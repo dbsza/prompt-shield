@@ -29,6 +29,16 @@ export function evaluatePolicy(scanResult: ScanResult): PolicyDecision {
   return decision;
 }
 
+export function applyMinimumAction(
+  decision: PolicyDecision,
+  minimumAction: Action,
+): PolicyDecision {
+  if (ACTION_PRIORITY[minimumAction] > ACTION_PRIORITY[decision.action]) {
+    return { ...decision, action: minimumAction };
+  }
+  return decision;
+}
+
 export function redactText(text: string, detections: Detection[]): string {
   if (detections.length === 0) return text;
 

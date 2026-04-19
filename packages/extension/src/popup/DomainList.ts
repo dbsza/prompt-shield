@@ -4,6 +4,7 @@ export function renderDomainList(
   container: HTMLElement,
   domains: string[],
   callback: DomainListCallback,
+  lockDomains = false,
 ): void {
   if (domains.length === 0) {
     container.innerHTML =
@@ -19,19 +20,24 @@ export function renderDomainList(
         <div class="rule-name">${escapeHtml(domain)}</div>
       </div>
       <div class="rule-actions">
-        <button class="btn btn-danger btn-small" data-action="remove">Remove</button>
+        ${lockDomains
+          ? '<span class="managed-lock" title="Managed by administrator">🔒</span>'
+          : '<button class="btn btn-danger btn-small" data-action="remove">Remove</button>'
+        }
       </div>
     </div>
   `,
     )
     .join('');
 
-  container.querySelectorAll('.rule-item[data-domain]').forEach((item) => {
-    const domain = item.getAttribute('data-domain')!;
-    item.querySelector('[data-action="remove"]')!.addEventListener('click', () => {
-      callback('remove', domain);
+  if (!lockDomains) {
+    container.querySelectorAll('.rule-item[data-domain]').forEach((item) => {
+      const domain = item.getAttribute('data-domain')!;
+      item.querySelector('[data-action="remove"]')!.addEventListener('click', () => {
+        callback('remove', domain);
+      });
     });
-  });
+  }
 }
 
 function escapeHtml(text: string): string {
@@ -39,3 +45,4 @@ function escapeHtml(text: string): string {
   div.textContent = text;
   return div.innerHTML;
 }
+

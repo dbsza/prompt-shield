@@ -198,6 +198,47 @@ body {
   margin: 4px 0 16px;
 }
 
+/* Tabs */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid #2a2a4a;
+  margin: -4px 0 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+  letter-spacing: 0.2px;
+}
+
+.tab-btn:hover {
+  color: #ccc;
+}
+
+.tab-btn.active {
+  color: #fff;
+  border-bottom-color: #e94560;
+}
+
+/* Managed items */
+.rule-item--managed {
+}
+
+.managed-lock {
+  font-size: 13px;
+  opacity: 0.65;
+  cursor: default;
+}
+
 /* Domain Add Row */
 .domain-add-row {
   display: flex;

@@ -8,36 +8,60 @@
 <body>
   <div class="popup-container">
     <header class="popup-header">
-      <h1>&#x1f6e1; Prompt Shield</h1>
+      <h1>Prompt Shield</h1>
       <div id="status-indicator"></div>
     </header>
 
-    <section class="popup-section">
-      <h2>Verified Domains</h2>
-      <div id="domain-list"></div>
-      <div class="domain-add-row">
-        <input type="text" id="domain-input" placeholder="e.g., claude.ai" />
-        <button id="add-domain-btn" class="btn btn-primary btn-small">Add</button>
-      </div>
-    </section>
+    <!-- Tab bar – only rendered when a managed policy is active -->
+    <div class="tab-bar" id="tab-bar" style="display: none;">
+      <button class="tab-btn" id="tab-btn-enterprise" data-tab="enterprise">Enterprise Managed</button>
+      <button class="tab-btn" id="tab-btn-user" data-tab="user">User</button>
+    </div>
 
-    <hr class="section-divider" />
+    <!-- Enterprise Managed tab -->
+    <div id="tab-enterprise" class="tab-content" style="display: none;">
+      <section class="popup-section">
+        <h2>Managed Domains</h2>
+        <div id="managed-domain-list"></div>
+      </section>
 
-    <section class="popup-section">
-      <h2>Rules</h2>
-      <div id="rule-list"></div>
-      <button id="add-rule-btn" class="btn btn-primary">Add Rule</button>
-    </section>
+      <hr class="section-divider" />
 
-    <section class="popup-section" id="rule-editor-section" style="display: none;">
-      <h2 id="editor-title">Add Rule</h2>
-      <div id="rule-editor"></div>
-    </section>
+      <section class="popup-section">
+        <h2>Managed Rules</h2>
+        <div id="managed-rule-list"></div>
+      </section>
+    </div>
 
-    <section class="popup-section">
-      <h2>Import / Export</h2>
-      <div id="import-export"></div>
-    </section>
+    <!-- User tab -->
+    <div id="tab-user" class="tab-content" style="display: none;">
+      <section class="popup-section">
+        <h2>Verified Domains</h2>
+        <div id="domain-list"></div>
+        <div class="domain-add-row" id="domain-add-row">
+          <input type="text" id="domain-input" placeholder="e.g., claude.ai" />
+          <button id="add-domain-btn" class="btn btn-primary btn-small">Add</button>
+        </div>
+      </section>
+
+      <hr class="section-divider" />
+
+      <section class="popup-section">
+        <h2>Rules</h2>
+        <div id="rule-list"></div>
+        <button id="add-rule-btn" class="btn btn-primary">Add Rule</button>
+      </section>
+
+      <section class="popup-section" id="rule-editor-section" style="display: none;">
+        <h2 id="editor-title">Add Rule</h2>
+        <div id="rule-editor"></div>
+      </section>
+
+      <section class="popup-section">
+        <h2>Import / Export</h2>
+        <div id="import-export"></div>
+      </section>
+    </div>
   </div>
 
   <script type="module" src="./src/popup/index.ts"></script>
